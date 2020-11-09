@@ -58,7 +58,8 @@ class ImageIterator(Iterator):
                  save_to_dir=None,
                  save_prefix='',
                  save_format='jpeg',
-                 dtype=np.float32
+                 dtype=np.float32,
+                 return_filename=False
                  ):
         if data_format is None:
             data_format = tf.keras.backend.image_data_format()
@@ -71,6 +72,7 @@ class ImageIterator(Iterator):
         self.image_dir = image_dir
         self.episode_len = episode_len
         self.episode_shift = episode_shift
+        self.return_filename = return_filename
 
         how_many_files = 0
         for label_name in classes:
@@ -137,6 +139,9 @@ class ImageIterator(Iterator):
             batch_x = np.zeros((len(index_array), self.episode_len) + self.image_shape, dtype=self.dtype)
             batch_gt = np.zeros((len(index_array), self.episode_len) + self.image_shape, dtype=self.dtype)
 
+            if self.return_filename:
+                batch_fln = dict()
+
             def get_filename(path):
                 folder, file = path.split(os.path.sep)[-2:]
                 file_name = file.split('.')[0]
@@ -154,45 +159,58 @@ class ImageIterator(Iterator):
                     j = j - last_ix
 
                 imgs = []
+                if self.return_filename:
+                    filenames = []
                 for ix in range(j, j+self.episode_len):
+                    if self.return_filename:
+                        filenames += [sorted_filenames[ix]]
+
                     imgs += [
-                        self.image_data_generator.standardize(
+                        #self.image_data_generator.standardize(
                             img_to_array(
                                 load_img(
                                     sorted_filenames[ix],
                                     grayscale=grayscale,
-                                    target_size=self.target_size
+                                    target_size=[*[*reversed(self.target_size)][1:],self.target_size[2]]
                                 ),
                                 data_format=self.data_format
                             )
-                        )
+                        #)
                     ]
+
                 imgs = np.array(imgs)
                 batch_x[i] = imgs
+                if self.return_filename:
+                    batch_fln[i] = [filenames]
 
                 imgs = []
                 for ix in range(j+self.episode_shift, j+self.episode_len+self.episode_shift):
                     imgs += [
-                        self.image_data_generator.standardize(
+                        #self.image_data_generator.standardize(
                             img_to_array(
                                 load_img(
                                     sorted_filenames[ix],
                                     grayscale=grayscale,
-                                    target_size=self.target_size
+                                    target_size=[*[*reversed(self.target_size)][1:],self.target_size[2]]
                                 ),
                                 data_format=self.data_format
                             )
-                        )
+                        #)
                     ]
 
                 imgs = np.array(imgs)
                 batch_gt[i] = imgs
+            if self.return_filename:
+                return batch_x, batch_gt, batch_fln
             return batch_x, batch_gt
 
         elif self.class_mode == 'episode_flat':
             batch_x = np.zeros((len(index_array), self.episode_len) + self.image_shape, dtype=self.dtype)
             batch_gt = np.zeros((len(index_array), self.episode_len) + self.image_shape, dtype=self.dtype)
 
+            if self.return_filename:
+                batch_fln = dict()#np.zeros((len(index_array), self.episode_len) + (1,), dtype=self.dtype)
+
             def get_filename(path):
                 folder, file = path.split(os.path.sep)[-2:]
                 file_name = file.split('.')[0]
@@ -209,51 +227,65 @@ class ImageIterator(Iterator):
                     j = j - last_ix
 
                 imgs = []
+                if self.return_filename:
+                    filenames = []
                 for ix in range(j, j + self.episode_len):
+                    if self.return_filename:
+                        filenames += [sorted_filenames[ix]]
+
                     imgs += [
-                        self.image_data_generator.standardize(
+                        #self.image_data_generator.standardize(
                             img_to_array(
                                 load_img(
                                     sorted_filenames[ix],
                                     grayscale=grayscale,
-                                    target_size=self.target_size
+                                    target_size=[*[*reversed(self.target_size)][1:],self.target_size[2]]
                                 ),
                                 data_format=self.data_format
                             )
-                        )
+                        #)
                     ]
                 imgs = np.array(imgs)
                 batch_x[i] = imgs
+                if self.return_filename:
+                    batch_fln[i] = [filenames]
 
                 imgs = []
                 for ix in range(j + self.episode_shift, j + self.episode_len + self.episode_shift):
                     imgs += [
-                        self.image_data_generator.standardize(
+                        #self.image_data_generator.standardize(
                             img_to_array(
                                 load_img(
                                     sorted_filenames[ix],
                                     grayscale=grayscale,
-                                    target_size=self.target_size
+                                    target_size=[*[*reversed(self.target_size)][1:],self.target_size[2]]
                                 ),
-                                data_format=self.data_format
+                               data_format=self.data_format
                             )
-                        )
+                        #)
                     ]
 
                 imgs = np.array(imgs)
                 batch_gt[i] = imgs
+                if self.return_filename:
+                    return np.reshape(batch_x, (-1,)+self.image_shape ), np.reshape(batch_gt, (-1,)+self.image_shape), batch_fln
             return np.reshape(batch_x, (-1,)+self.image_shape ), np.reshape(batch_gt, (-1,)+self.image_shape)
         else:
             batch_x = np.zeros((len(index_array),) + self.image_shape, dtype=self.dtype)
+            if self.return_filename:
+                batch_fln = dict()#np.zeros((len(index_array),) + (1, ), dtype=self.dtype)
+
             # build batch of image data
             for i, j in enumerate(index_array):
                 img = load_img(self.filenames[j],
                                grayscale=grayscale,
-                               target_size=self.target_size)
+                               target_size=[*[*reversed(self.target_size)][1:],self.target_size[2]])
                 x = img_to_array(img, data_format=self.data_format)
                 x = self.image_data_generator.random_transform(x)
-                x = self.image_data_generator.standardize(x)
+                #x = self.image_data_generator.standardize(x)
                 batch_x[i] = x
+                if self.return_filename:
+                    batch_fln[i] = [self.filenames[j]]
 
             # optionally save augmented images to disk for debugging purposes
             if self.save_to_dir:
@@ -275,8 +307,15 @@ class ImageIterator(Iterator):
                     batch_y[i, label] = 1.
 
             elif self.class_mode is None:
+                if self.return_filename:
+                    return batch_x, batch_fln
                 return batch_x
             else:
+                if self.return_filename:
+                    return batch_x, self.class_mode(batch_x), batch_fln
                 return batch_x, self.class_mode(batch_x)
+
+            if self.return_filename:
+                return batch_x, batch_y, batch_fln
             return batch_x, batch_y
 

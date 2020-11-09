@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import warnings
+import random
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
@@ -26,7 +27,8 @@ class FileImageGenerator(ImageDataGenerator):
                               seed=None,
                               save_to_dir=None,
                               save_prefix='',
-                              save_format='jpg'):
+                              save_format='jpg',
+                              return_filename=False):
 
         return ImageIterator(image_lists, self,
                              category,
@@ -41,7 +43,8 @@ class FileImageGenerator(ImageDataGenerator):
                              shuffle=shuffle, seed=seed,
                              save_to_dir=save_to_dir,
                              save_prefix=save_prefix,
-                             save_format=save_format)
+                             save_format=save_format,
+                             return_filename=return_filename)
 
 
 def make_image_lists(image_dir,
@@ -49,7 +52,7 @@ def make_image_lists(image_dir,
                      valid_imgae_formats,
                      max_num_images_per_class=2**27-1,
                      sequenced=None,
-                     exclude_list=None,
+                     sample_pct=1.0,
                      verbose=1):
     """Builds a list of training images from the file system.
 
@@ -120,6 +123,7 @@ def make_image_lists(image_dir,
                 log_message(msg, logging.WARN)
                 warnings.warn(msg)
 
+        file_list = random.sample(file_list, int(len(file_list)*sample_pct))
         for file_name in file_list:
             base_name = os.path.basename(file_name)
             if sequenced is True:
@@ -145,11 +149,12 @@ def get_generators(images_list,
                    image_size,
                    batch_size,
                    class_mode,
+                   return_filename=False,
                    holdout_dir=None,
                    holdout_list=None,
                    episode_len=None,
                    episode_shift=None,
-                   scaler=1. /255.0,
+                   scaler=1.0/255.0,
                    rotation_range=0,
                    width_shift_range=0.,
                    height_shift_range=0.,
@@ -212,7 +217,8 @@ def get_generators(images_list,
         class_mode=class_mode,
         episode_len=episode_len,
         episode_shift=episode_shift,
-        seed=0)
+        seed=0,
+        return_filename=return_filename)
 
     validation_generator = valid_datagen.flow_from_image_lists(
         image_lists=images_list,
@@ -223,7 +229,8 @@ def get_generators(images_list,
         class_mode=class_mode,
         episode_len=episode_len,
         episode_shift=episode_shift,
-        seed=0)
+        seed=0,
+        return_filename=return_filename)
 
     if holdout_dir:
         holdout_generator = holdout_datagen.flow_from_image_lists(
@@ -235,7 +242,8 @@ def get_generators(images_list,
             class_mode=class_mode,
             episode_len=episode_len,
             episode_shift=episode_shift,
-            seed=0)
+            seed=0,
+            return_filename=return_filename)
 
         return train_generator, validation_generator, holdout_generator
 
