@@ -166,7 +166,7 @@ class ImageIterator(Iterator):
                         filenames += [sorted_filenames[ix]]
 
                     imgs += [
-                        #self.image_data_generator.standardize(
+                        self.image_data_generator.standardize(
                             img_to_array(
                                 load_img(
                                     sorted_filenames[ix],
@@ -175,7 +175,7 @@ class ImageIterator(Iterator):
                                 ),
                                 data_format=self.data_format
                             )
-                        #)
+                        )
                     ]
 
                 imgs = np.array(imgs)
@@ -186,7 +186,7 @@ class ImageIterator(Iterator):
                 imgs = []
                 for ix in range(j+self.episode_shift, j+self.episode_len+self.episode_shift):
                     imgs += [
-                        #self.image_data_generator.standardize(
+                        self.image_data_generator.standardize(
                             img_to_array(
                                 load_img(
                                     sorted_filenames[ix],
@@ -195,7 +195,7 @@ class ImageIterator(Iterator):
                                 ),
                                 data_format=self.data_format
                             )
-                        #)
+                        )
                     ]
 
                 imgs = np.array(imgs)
@@ -234,7 +234,7 @@ class ImageIterator(Iterator):
                         filenames += [sorted_filenames[ix]]
 
                     imgs += [
-                        #self.image_data_generator.standardize(
+                        self.image_data_generator.standardize(
                             img_to_array(
                                 load_img(
                                     sorted_filenames[ix],
@@ -243,7 +243,7 @@ class ImageIterator(Iterator):
                                 ),
                                 data_format=self.data_format
                             )
-                        #)
+                        )
                     ]
                 imgs = np.array(imgs)
                 batch_x[i] = imgs
@@ -253,7 +253,7 @@ class ImageIterator(Iterator):
                 imgs = []
                 for ix in range(j + self.episode_shift, j + self.episode_len + self.episode_shift):
                     imgs += [
-                        #self.image_data_generator.standardize(
+                        self.image_data_generator.standardize(
                             img_to_array(
                                 load_img(
                                     sorted_filenames[ix],
@@ -262,7 +262,7 @@ class ImageIterator(Iterator):
                                 ),
                                data_format=self.data_format
                             )
-                        #)
+                        )
                     ]
 
                 imgs = np.array(imgs)
@@ -282,7 +282,7 @@ class ImageIterator(Iterator):
                                target_size=[*[*reversed(self.target_size)][1:],self.target_size[2]])
                 x = img_to_array(img, data_format=self.data_format)
                 x = self.image_data_generator.random_transform(x)
-                #x = self.image_data_generator.standardize(x)
+                x = self.image_data_generator.standardize(x)
                 batch_x[i] = x
                 if self.return_filename:
                     batch_fln[i] = [self.filenames[j]]

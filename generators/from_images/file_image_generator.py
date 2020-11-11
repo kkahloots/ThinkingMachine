@@ -154,7 +154,7 @@ def get_generators(images_list,
                    holdout_list=None,
                    episode_len=None,
                    episode_shift=None,
-                   scaler=1.0/255.0,
+                   scaler=255,
                    rotation_range=0,
                    width_shift_range=0.,
                    height_shift_range=0.,
@@ -168,7 +168,7 @@ def get_generators(images_list,
                    vertical_flip=False
 ):
 
-    train_datagen = FileImageGenerator(rescale=scaler,
+    train_datagen = FileImageGenerator(rescale=1/scaler,
                                        rotation_range=rotation_range,
                                        width_shift_range=width_shift_range,
                                        height_shift_range=height_shift_range,
@@ -181,7 +181,7 @@ def get_generators(images_list,
                                        horizontal_flip=horizontal_flip,
                                        vertical_flip=vertical_flip)
 
-    valid_datagen = FileImageGenerator(rescale=scaler,
+    valid_datagen = FileImageGenerator(rescale=1/scaler,
                                        rotation_range=rotation_range,
                                        width_shift_range=width_shift_range,
                                        height_shift_range=height_shift_range,
@@ -195,7 +195,7 @@ def get_generators(images_list,
                                        vertical_flip=vertical_flip)
 
     if holdout_dir:
-        holdout_datagen = FileImageGenerator(rescale=scaler,
+        holdout_datagen = FileImageGenerator(rescale=1/scaler,
                                             rotation_range=rotation_range,
                                             width_shift_range=width_shift_range,
                                             height_shift_range=height_shift_range,
