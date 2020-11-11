@@ -3,9 +3,9 @@ import tensorflow as tf
 def make_learner(model_name, input_shape, num_classes):
     inputs = tf.keras.Input(shape=input_shape)
     x = inputs
-    x = tf.keras.layers.Dense(units=100)(x)
-    x = tf.keras.layers.Dense(units=100)(x)
-    x = tf.keras.layers.Dense(units=100)(x)
+    x = tf.keras.layers.Dense(units=100, activation=tf.keras.activations.sigmoid)(x)
+    x = tf.keras.layers.Dense(units=100, activation=tf.keras.activations.sigmoid)(x)
+    x = tf.keras.layers.Dense(units=100, activation=tf.keras.activations.sigmoid)(x)
     x = tf.keras.layers.Dense(units=3)(x)
 
     x = tf.keras.layers.Flatten()(x)
@@ -26,9 +26,9 @@ def make_learner(model_name, input_shape, num_classes):
 def make_regulator(model_name, input_shape):
     inputs = tf.keras.Input(shape=input_shape)
     x = inputs
-    x = tf.keras.layers.Dense(units=100)(x)
-    x = tf.keras.layers.Dense(units=100)(x)
-    x = tf.keras.layers.Dense(units=100)(x)
+    x = tf.keras.layers.Dense(units=100, activation=tf.keras.activations.sigmoid)(x)
+    x = tf.keras.layers.Dense(units=100, activation=tf.keras.activations.sigmoid)(x)
+    x = tf.keras.layers.Dense(units=100, activation=tf.keras.activations.sigmoid)(x)
     x = tf.keras.layers.Dense(units=3)(x)
     x = tf.keras.layers.Flatten()(x)
 
