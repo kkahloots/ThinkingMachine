@@ -17,7 +17,7 @@ def make_learner(model_name, input_shape, num_classes):
         activation = "softmax"
         units = num_classes
 
-    outputs = tf.keras.layers.Dense(units, activation=activation, activity_regularizer=tf.keras.regularizers.l1_l2(l1=1e-3, l2=1e-3))(x)
+    outputs = tf.keras.layers.Dense(units, activation=activation)(x)
 
     learner = tf.keras.Model(name=model_name, inputs=inputs, outputs=outputs)
     print(learner.summary())
